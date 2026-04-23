@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Nilai Siswa | SDN 1 KONOHA</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .form-container {
+            max-width: 800px;
+            margin: 3rem auto;
+            background: var(--white);
+            padding: 2.5rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+        }
+        .page-header { border-bottom: 2px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 2rem; }
+        .page-header h2 { color: var(--primary-blue); margin-bottom: 0.5rem; }
+        
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-dark); }
+        .form-control { width: 100%; padding: 0.8rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); font-family: 'Inter', sans-serif; }
+        .form-control:focus { outline: none; border-color: var(--primary-blue); }
+        
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        
+        textarea.form-control { resize: vertical; min-height: 100px; }
+        
+        .alert-success {
+            background-color: #D1FAE5; color: #065F46; padding: 1rem; border-radius: var(--radius-md);
+            margin-bottom: 1.5rem; display: none; align-items: center; gap: 10px; font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand" style="cursor:pointer;" onclick="window.location.href='dashboard.html'">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>Kembali ke Dashboard</span>
+        </div>
+        <div class="nav-menu">
+            <span class="role-badge" style="background:#FEF3C7; color:#D97706; padding:0.4rem 1rem; border-radius:20px; font-weight:600;"><i class="fa-solid fa-chalkboard-user"></i> Akses Guru</span>
+        </div>
+    </nav>
+
+    <main class="form-container">
+        <div class="page-header">
+            <h2>Input Nilai e-Rapor (Kurikulum Merdeka)</h2>
+            <p style="color: var(--text-gray);">Silakan masukkan nilai akhir dan deskripsi capaian kompetensi siswa.</p>
+        </div>
+
+        <div id="success-message" class="alert-success">
+            <i class="fa-solid fa-circle-check"></i> Data nilai berhasil disimpan ke sistem!
+        </div>
+
+        <form id="form-nilai" onsubmit="simpanNilai(event)">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Pilih Siswa</label>
+                    <select id="siswa_id" class="form-control" required>
+                        <option value="">-- Cari Nama Siswa --</option>
+                        <option value="0012345678">Uzumaki Boruto (NISN: 0012345678)</option>
+                        <option value="0012345679">Uchiha Sarada (NISN: 0012345679)</option>
+                        <option value="0012345680">Mitsuki (NISN: 0012345680)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Mata Pelajaran</label>
+                    <select id="mapel" class="form-control" required>
+                        <option value="">-- Pilih Mata Pelajaran --</option>
+                        <option value="Pendidikan Agama">Pendidikan Agama & Budi Pekerti</option>
+                        <option value="Pendidikan Pancasila">Pendidikan Pancasila</option>
+                        <option value="Matematika">Matematika</option>
+                        <option value="Bahasa Indonesia">Bahasa Indonesia</option>
+                        <option value="IPAS">Ilmu Pengetahuan Alam & Sosial</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Nilai Akhir (0-100)</label>
+                <input type="number" id="nilai_akhir" class="form-control" min="0" max="100" placeholder="Contoh: 85" required style="width: 50%;">
+            </div>
+
+            <div class="form-group">
+                <label>Deskripsi Capaian Kompetensi</label>
+                <textarea id="deskripsi" class="form-control" placeholder="Contoh: Siswa menunjukkan penguasaan yang sangat baik dalam memahami materi..." required></textarea>
+                <small style="color: var(--text-gray); display: block; margin-top: 5px;">Maksimal 300 karakter. Gunakan kalimat positif yang memotivasi.</small>
+            </div>
+
+            <hr style="border:0; border-top: 1px solid var(--border-color); margin: 2rem 0;">
+
+            <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+                <button type="button" class="btn btn-outline" onclick="window.location.href='dashboard.html'">Batal</button>
+                <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Simpan Nilai</button>
+            </div>
+        </form>
+    </main>
+
+    <script src="js/auth.js"></script>
+    <script>
+        // 1. Proteksi Halaman: Pastikan yang masuk adalah GURU atau ADMIN
+        document.addEventListener("DOMContentLoaded", function() {
+            const user = checkAuth();
+            if (user && user.role !== 'guru' && user.role !== 'admin') {
+                alert("Akses Ditolak! Halaman ini hanya untuk tenaga pendidik.");
+                window.location.href = 'dashboard.html';
+            }
+        });
+
+        // 2. Fungsi Menyimpan Nilai ke localStorage
+        function simpanNilai(e) {
+            e.preventDefault(); // Mencegah halaman me-refresh
+
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            
+            // Ambil data dari form
+            const inputData = {
+                id_transaksi: 'TRX-' + Date.now(), // Buat ID unik berdasarkan waktu
+                guru_nama: user.name,
+                siswa_id: document.getElementById('siswa_id').value,
+                siswa_nama: document.getElementById('siswa_id').options[document.getElementById('siswa_id').selectedIndex].text.split(' (')[0], // Ambil nama saja tanpa NISN
+                mapel: document.getElementById('mapel').value,
+                nilai_akhir: document.getElementById('nilai_akhir').value,
+                deskripsi: document.getElementById('deskripsi').value,
+                tanggal_input: new Date().toLocaleDateString('id-ID')
+            };
+
+            // Ambil database nilai yang sudah ada, atau buat Array kosong jika belum ada
+            let dbNilai = JSON.parse(localStorage.getItem('db_nilai')) || [];
+            
+            // Masukkan data nilai baru ke dalam database
+            dbNilai.push(inputData);
+            
+            // Simpan kembali ke localStorage
+            localStorage.setItem('db_nilai', JSON.stringify(dbNilai));
+
+            // Tampilkan pesan sukses
+            const successMsg = document.getElementById('success-message');
+            successMsg.style.display = 'flex';
+            
+            // Reset form
+            document.getElementById('form-nilai').reset();
+
+            // Sembunyikan pesan sukses setelah 3 detik
+            setTimeout(() => {
+                successMsg.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

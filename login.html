@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Sistem Akademik | SDN 1 KONOHA</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* CSS Khusus Login */
+        .login-page {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(rgba(30, 58, 138, 0.9), rgba(16, 185, 129, 0.8)), url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&q=80') center/cover;
+        }
+        .login-card {
+            background: var(--white);
+            padding: 3rem;
+            border-radius: var(--radius-lg);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+        }
+        .login-header { text-align: center; margin-bottom: 2rem; }
+        .login-header i { font-size: 3rem; color: var(--primary-blue); margin-bottom: 1rem; }
+        .login-header h2 { color: var(--text-dark); }
+        .login-header p { color: var(--text-gray); font-size: 0.9rem; }
+        
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9rem; }
+        .form-control { width: 100%; padding: 0.8rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); font-family: 'Inter', sans-serif; }
+        
+        .error-msg { background: #FEE2E2; color: #DC2626; padding: 0.75rem; border-radius: var(--radius-md); font-size: 0.85rem; margin-bottom: 1.5rem; display: none; text-align: center;}
+        
+        .back-link { display: block; text-align: center; margin-top: 1.5rem; color: var(--text-gray); font-size: 0.9rem; }
+        .back-link:hover { color: var(--primary-blue); }
+    </style>
+</head>
+<body class="login-page">
+
+    <div class="login-card">
+        <div class="login-header">
+            <i class="fa-solid fa-graduation-cap"></i>
+            <h2>Portal Akademik</h2>
+            <p>Silakan login menggunakan akun Anda</p>
+        </div>
+
+        <div id="login-error" class="error-msg"></div>
+
+        <form onsubmit="login(event)">
+            <div class="form-group">
+                <label>Username / NISN / NIP</label>
+                <input type="text" id="username" class="form-control" placeholder="Masukkan ID Anda" required>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password" class="form-control" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1rem; font-size: 1rem;">Masuk ke Sistem</button>
+        </form>
+
+        <a href="index.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Kembali ke Halaman Utama</a>
+    </div>
+
+    <script src="js/auth.js"></script>
+</body>
+</html>

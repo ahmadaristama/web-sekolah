@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PPDB Online | SDN 1 KONOHA</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .ppdb-container { max-width: 800px; margin: 4rem auto; background: var(--white); padding: 2.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-md); }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--text-dark); }
+        .form-control { width: 100%; padding: 0.8rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); font-family: 'Inter', sans-serif; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        .step-indicator { display: flex; justify-content: space-between; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid var(--border-color); }
+        .step { color: var(--text-gray); font-weight: 600; }
+        .step.active { color: var(--primary-blue); }
+        
+        .alert-success { background-color: #D1FAE5; color: #065F46; padding: 1.5rem; border-radius: var(--radius-md); margin-bottom: 1.5rem; display: none; flex-direction: column; text-align: center; gap: 10px; }
+        .alert-success h3 { margin: 0; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand" style="cursor:pointer;" onclick="window.location.href='index.html'">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>Kembali ke Beranda</span>
+        </div>
+    </nav>
+
+    <main class="ppdb-container">
+        <div class="step-indicator">
+            <span class="step active">Formulir Pendaftaran Calon Siswa Baru</span>
+        </div>
+
+        <div id="success-message" class="alert-success">
+            <i class="fa-solid fa-circle-check fa-3x" style="color: #10B981;"></i>
+            <h3>Pendaftaran Berhasil!</h3>
+            <p>Nomor Registrasi Anda: <strong id="no-registrasi-tampil" style="font-size: 1.2rem; color: var(--primary-blue);"></strong></p>
+            <p>Silakan simpan nomor ini. Berkas Anda sedang menunggu verifikasi dari Admin Sekolah.</p>
+            <button class="btn btn-outline" style="margin-top: 10px; width: 200px; align-self: center;" onclick="window.location.href='index.html'">Kembali ke Beranda</button>
+        </div>
+
+        <h2 id="form-title" style="margin-bottom: 1.5rem; color: var(--primary-blue);">Isi Data Calon Siswa</h2>
+        
+        <form id="form-ppdb" onsubmit="submitPPDB(event)">
+            <div class="form-group">
+                <label>Nama Lengkap Calon Siswa</label>
+                <input type="text" id="nama_siswa" class="form-control" placeholder="Sesuai Akta Kelahiran" required>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>NIK (Nomor Induk Kependudukan)</label>
+                    <input type="number" id="nik_siswa" class="form-control" placeholder="16 Digit NIK" required>
+                </div>
+                <div class="form-group">
+                    <label>Jenis Kelamin</label>
+                    <select id="jk_siswa" class="form-control" required>
+                        <option value="">-- Pilih Jenis Kelamin --</option>
+                        <option value="L">Laki-laki</option>
+                        <option value="P">Perempuan</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Asal TK / PAUD</label>
+                    <input type="text" id="asal_sekolah" class="form-control" placeholder="Nama sekolah sebelumnya" required>
+                </div>
+                <div class="form-group">
+                    <label>Nomor HP Orang Tua (WhatsApp)</label>
+                    <input type="number" id="hp_ortu" class="form-control" placeholder="08xxxxxxxxx" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem; padding: 1rem; font-size: 1.1rem;">
+                <i class="fa-solid fa-paper-plane"></i> Kirim Formulir Pendaftaran
+            </button>
+        </form>
+    </main>
+
+    <script>
+        function submitPPDB(e) {
+            e.preventDefault();
+
+            // Generate Nomor Registrasi Acak (Contoh: REG-2026-8A3F)
+            const randomCode = Math.random().toString(36).substring(2, 6).toUpperCase();
+            const noReg = 'REG-2026-' + randomCode;
+
+            // Kumpulkan data dari form
+            const dataPPDB = {
+                no_registrasi: noReg,
+                nama: document.getElementById('nama_siswa').value,
+                nik: document.getElementById('nik_siswa').value,
+                jk: document.getElementById('jk_siswa').value,
+                asal_sekolah: document.getElementById('asal_sekolah').value,
+                hp_ortu: document.getElementById('hp_ortu').value,
+                tanggal_daftar: new Date().toLocaleDateString('id-ID'),
+                status: 'Menunggu Verifikasi' // Default status
+            };
+
+            // Simpan ke localStorage (database dummy)
+            let dbPPDB = JSON.parse(localStorage.getItem('db_ppdb')) || [];
+            dbPPDB.push(dataPPDB);
+            localStorage.setItem('db_ppdb', JSON.stringify(dbPPDB));
+
+            // Ubah Tampilan: Sembunyikan form, tampilkan pesan sukses
+            document.getElementById('form-ppdb').style.display = 'none';
+            document.getElementById('form-title').style.display = 'none';
+            
+            document.getElementById('no-registrasi-tampil').innerText = noReg;
+            document.getElementById('success-message').style.display = 'flex';
+        }
+    </script>
+</body>
+</html>

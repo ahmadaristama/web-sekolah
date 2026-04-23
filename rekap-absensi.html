@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rekap Kehadiran | SDN 1 KONOHA</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .rekap-container { max-width: 800px; margin: 3rem auto; background: var(--white); padding: 2.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-md); }
+        .table-custom { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        .table-custom th, .table-custom td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        .table-custom th { background-color: var(--bg-light); }
+        
+        .badge { padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+        .bg-hadir { background: #D1FAE5; color: #059669; }
+        .bg-sakit { background: #FEF3C7; color: #D97706; }
+        .bg-izin { background: #DBEAFE; color: #2563EB; }
+        .bg-alpa { background: #FEE2E2; color: #DC2626; }
+
+        .summary-boxes { display: flex; gap: 1rem; margin-bottom: 2rem; }
+        .s-box { flex: 1; padding: 1.5rem; border-radius: var(--radius-md); text-align: center; font-weight: bold; }
+        .s-box h2 { font-size: 2rem; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand" style="cursor:pointer;" onclick="window.location.href='dashboard.html'">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>Kembali ke Dashboard</span>
+        </div>
+    </nav>
+
+    <main class="rekap-container">
+        <h2 style="color: var(--primary-blue); margin-bottom: 0.5rem;">Laporan Kehadiran Siswa</h2>
+        <p style="color: var(--text-gray); margin-bottom: 2rem;">Semester Ganjil - Tahun Ajaran 2026/2027</p>
+
+        <div class="summary-boxes">
+            <div class="s-box" style="background: #D1FAE5; color: #059669;">Hadir <h2 id="total-hadir">0</h2></div>
+            <div class="s-box" style="background: #FEF3C7; color: #D97706;">Sakit <h2 id="total-sakit">0</h2></div>
+            <div class="s-box" style="background: #DBEAFE; color: #2563EB;">Izin <h2 id="total-izin">0</h2></div>
+            <div class="s-box" style="background: #FEE2E2; color: #DC2626;">Alpa <h2 id="total-alpa">0</h2></div>
+        </div>
+
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>Tanggal</th>
+                    <th>Status Kehadiran</th>
+                    <th>Diinput Oleh</th>
+                </tr>
+            </thead>
+            <tbody id="tabel-riwayat-absensi">
+                </tbody>
+        </table>
+    </main>
+
+    <script src="js/auth.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const user = checkAuth();
+            if(!user) return;
+
+            // Jika Ortu, asumsikan cari data Boruto. Jika siswa, pakai NISN dia.
+            const targetNISN = (user.role === 'ortu') ? '0012345678' : user.username;
+
+            const dbAbsensi = JSON.parse(localStorage.getItem('db_absensi')) || [];
+            
+            // Ambil hanya absensi milik siswa bersangkutan
+            const riwayatSiswa = dbAbsensi.filter(abs => abs.nisn === targetNISN);
+
+            const tbody = document.getElementById('tabel-riwayat-absensi');
+            
+            if (riwayatSiswa.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:gray; padding:2rem;">Belum ada riwayat kehadiran.</td></tr>';
+                return;
+            }
+
+            // Hitung total untuk dashboard kotak
+            let tHadir=0, tSakit=0, tIzin=0, tAlpa=0;
+            let html = '';
+
+            // Tampilkan dari data terbaru (reverse)
+            riwayatSiswa.reverse().forEach(abs => {
+                let badgeClass = '';
+                if(abs.status === 'Hadir') { badgeClass = 'bg-hadir'; tHadir++; }
+                if(abs.status === 'Sakit') { badgeClass = 'bg-sakit'; tSakit++; }
+                if(abs.status === 'Izin') { badgeClass = 'bg-izin'; tIzin++; }
+                if(abs.status === 'Alpa') { badgeClass = 'bg-alpa'; tAlpa++; }
+
+                html += `
+                    <tr>
+                        <td><strong>${abs.tanggal}</strong></td>
+                        <td><span class="badge ${badgeClass}">${abs.status}</span></td>
+                        <td style="color:var(--text-gray); font-size:0.9rem;"><i class="fa-solid fa-user-pen"></i> ${abs.guru}</td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+            
+            // Update angka di kotak atas
+            document.getElementById('total-hadir').innerText = tHadir;
+            document.getElementById('total-sakit').innerText = tSakit;
+            document.getElementById('total-izin').innerText = tIzin;
+            document.getElementById('total-alpa').innerText = tAlpa;
+        });
+    </script>
+</body>
+</html>

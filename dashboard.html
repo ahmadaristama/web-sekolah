@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Akademik | SDN 1 KONOHA</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="dashboard-body">
+
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <i class="fa-solid fa-graduation-cap"></i>
+            <span>SDN 1 KONOHA</span>
+        </div>
+        
+        <div class="sidebar-menu">
+            <p class="menu-label">MAIN MENU</p>
+            <div class="sidebar-menu" id="dynamic-sidebar">
+            </div>
+            
+            <p class="menu-label">AKADEMIK</p>
+            <a href="#" class="menu-item"><i class="fa-solid fa-book"></i> Mata Pelajaran</a>
+            <a href="#" class="menu-item"><i class="fa-solid fa-file-signature"></i> e-Rapor (Kurikulum Merdeka)</a>
+            <a href="#" class="menu-item"><i class="fa-solid fa-calendar-check"></i> Absensi</a>
+            
+            <p class="menu-label">SISTEM</p>
+            <a href="#" class="menu-item"><i class="fa-solid fa-clipboard-user"></i> Verifikasi PPDB</a>
+            <a href="#" class="menu-item"><i class="fa-solid fa-gear"></i> Pengaturan</a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div class="topbar-search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" placeholder="Cari data siswa, NIK, atau pengumuman...">
+            </div>
+            <div class="topbar-profile">
+                <div class="role-badge admin">Admin Pusat</div>
+                <div class="profile-info">
+                    <span class="name">Ahmad</span>
+                    <span class="role">Administrator</span>
+                </div>
+                <div class="profile-avatar"><i class="fa-solid fa-user-tie"></i></div>
+            </div>
+        </header>
+
+        <div class="dashboard-content">
+            <div class="page-header">
+                <h2>Dashboard Analitik</h2>
+                <div style="display: flex; gap: 1rem;">
+                    <button class="btn btn-primary"><i class="fa-solid fa-download"></i> Export Laporan</button>
+                    <button class="btn btn-primary" id="openLoginModalBtn" type="button">
+                        <i class="fa-solid fa-right-to-bracket"></i> Masuk e-Akademik
+                    </button>
+                </div>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon blue"><i class="fa-solid fa-users"></i></div>
+                    <div class="metric-data">
+                        <p>Total Siswa Aktif</p>
+                        <h3>852</h3>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon green"><i class="fa-solid fa-check-to-slot"></i></div>
+                    <div class="metric-data">
+                        <p>Kehadiran Hari Ini</p>
+                        <h3>98.5%</h3>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon orange"><i class="fa-solid fa-file-lines"></i></div>
+                    <div class="metric-data">
+                        <p>Pendaftar PPDB</p>
+                        <h3>145</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-grid">
+                <div class="chart-container card">
+                    <h3>Perkembangan Nilai Rata-Rata</h3>
+                    <canvas id="academicChart"></canvas>
+                </div>
+                <div class="recent-activity card">
+                    <h3>Aktivitas Terbaru</h3>
+                    <ul class="activity-list">
+                        <li><i class="fa-solid fa-circle-check text-green"></i> Guru Budi mengunggah nilai MTK Kelas 6A</li>
+                        <li><i class="fa-solid fa-user-plus text-blue"></i> Pendaftar PPDB baru: #REG-0042</li>
+                        <li><i class="fa-solid fa-file-pdf text-orange"></i> e-Rapor Kelas 5B siap dicetak</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Login Pop-up (Elegan, di Tengah, Tabbed untuk Guru/Siswa/Ortu) -->
+        <div class="login-modal-overlay" id="loginModalOverlay" style="display:none;">
+            <div class="login-modal">
+                <button class="login-modal-close" id="closeLoginModal" title="Tutup">&times;</button>
+                <div class="login-tabs">
+                    <button type="button" class="login-tab-btn active" data-tab="guru">Guru</button>
+                    <button type="button" class="login-tab-btn" data-tab="siswa">Siswa</button>
+                    <button type="button" class="login-tab-btn" data-tab="ortu">Orang Tua</button>
+                </div>
+                <div class="login-tab-content active" data-tab="guru">
+                    <form autocomplete="off">
+                        <div class="login-form-group">
+                            <label for="login-nip">NIP/Username</label>
+                            <input type="text" class="login-form-control" id="login-nip" placeholder="Masukkan NIP atau Username" autocomplete="username">
+                        </div>
+                        <div class="login-form-group">
+                            <label for="login-password-guru">Kata Sandi</label>
+                            <input type="password" class="login-form-control" id="login-password-guru" placeholder="Kata sandi" autocomplete="current-password">
+                        </div>
+                        <button type="submit" class="login-btn-primary">Masuk sebagai Guru</button>
+                        <a href="#" class="forgot-link">Lupa password?</a>
+                    </form>
+                </div>
+                <div class="login-tab-content" data-tab="siswa" style="display:none;">
+                    <form autocomplete="off">
+                        <div class="login-form-group">
+                            <label for="login-nis">NIS</label>
+                            <input type="text" class="login-form-control" id="login-nis" placeholder="Masukkan NIS" autocomplete="username">
+                        </div>
+                        <div class="login-form-group">
+                            <label for="login-password-siswa">Kata Sandi</label>
+                            <input type="password" class="login-form-control" id="login-password-siswa" placeholder="Kata sandi" autocomplete="current-password">
+                        </div>
+                        <button type="submit" class="login-btn-primary">Masuk sebagai Siswa</button>
+                        <a href="#" class="forgot-link">Lupa password?</a>
+                    </form>
+                </div>
+                <div class="login-tab-content" data-tab="ortu" style="display:none;">
+                    <form autocomplete="off">
+                        <div class="login-form-group">
+                            <label for="login-nik">NIK Anak</label>
+                            <input type="text" class="login-form-control" id="login-nik" placeholder="Masukkan NIK Anak">
+                        </div>
+                        <div class="login-form-group">
+                            <label for="login-password-ortu">Kata Sandi</label>
+                            <input type="password" class="login-form-control" id="login-password-ortu" placeholder="Kata sandi">
+                        </div>
+                        <button type="submit" class="login-btn-primary">Masuk sebagai Orang Tua</button>
+                        <a href="#" class="forgot-link">Lupa password?</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <script>
+        // Login Modal Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            var openLoginModalBtn = document.getElementById('openLoginModalBtn');
+            var loginModalOverlay = document.getElementById('loginModalOverlay');
+            var closeLoginModalBtn = document.getElementById('closeLoginModal');
+            var tabBtns = loginModalOverlay.querySelectorAll('.login-tab-btn');
+            var tabContents = loginModalOverlay.querySelectorAll('.login-tab-content');
+
+            function openLoginModal() {
+                loginModalOverlay.style.display = 'flex';
+                // Always reset to tab Guru
+                tabBtns.forEach((btn, i) => btn.classList.toggle('active', i === 0));
+                tabContents.forEach((tab, i) => {
+                    tab.style.display = (i === 0) ? 'block' : 'none';
+                    tab.classList.toggle('active', i === 0);
+                });
+            }
+            function closeLoginModal() {
+                loginModalOverlay.style.display = 'none';
+            }
+            openLoginModalBtn.addEventListener('click', openLoginModal);
+            closeLoginModalBtn.addEventListener('click', closeLoginModal);
+            loginModalOverlay.addEventListener('click', function(e) {
+                if (e.target === this) closeLoginModal();
+            });
+
+            tabBtns.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var tab = btn.getAttribute('data-tab');
+                    tabBtns.forEach(b => b.classList.toggle('active', b === btn));
+                    tabContents.forEach(t => {
+                        if (t.getAttribute('data-tab') === tab) {
+                            t.style.display = 'block';
+                            t.classList.add('active');
+                        } else {
+                            t.style.display = 'none';
+                            t.classList.remove('active');
+                        }
+                    });
+                });
+            });
+        });
+        </script>
+    </main>
+
+    <script src="js/app.js"></script>
+</body>
+<script src="js/auth.js"></script>
+    
+    <script>
+        // 1. Jalankan pengecekan keamanan saat halaman dimuat
+        const user = checkAuth();
+
+        if (user) {
+            // 2. Ubah Info Profil di Topbar
+            document.querySelector('.profile-info .name').innerText = user.name;
+            document.querySelector('.profile-info .role').innerText = user.role.toUpperCase();
+            
+            const badge = document.querySelector('.role-badge');
+            badge.innerText = user.role.toUpperCase();
+            
+            if(user.role === 'siswa') { badge.style.background = '#D1FAE5'; badge.style.color = '#059669'; }
+            if(user.role === 'guru') { badge.style.background = '#FEF3C7'; badge.style.color = '#D97706'; }
+            if(user.role === 'ortu') { badge.style.background = '#F3E8FF'; badge.style.color = '#7E22CE'; }
+
+            // 3. GENERATE SIDEBAR DINAMIS BERDASARKAN ROLE
+            const sidebarContainer = document.getElementById('dynamic-sidebar');
+            let menuHTML = '';
+
+            if (user.role === 'admin') {
+                menuHTML = `
+                    <p class="menu-label">MAIN MENU</p>
+                    <a href="#" class="menu-item active"><i class="fa-solid fa-chart-pie"></i> Overview Admin</a>
+                    <a href="#" class="menu-item"><i class="fa-solid fa-users"></i> Data Siswa</a>
+                    <a href="#" class="menu-item"><i class="fa-solid fa-chalkboard-user"></i> Data Guru</a>
+                    <p class="menu-label">SISTEM</p>
+                   <a href="verifikasi-ppdb.html" class="menu-item"><i class="fa-solid fa-clipboard-user"></i> Verifikasi PPDB</a>
+                `;
+            } 
+            else if (user.role === 'guru') {
+                menuHTML = `
+                    <p class="menu-label">MENU GURU</p>
+                    <a href="#" class="menu-item active"><i class="fa-solid fa-house-user"></i> Beranda Kelas</a>
+                    <a href="#" class="menu-item"><i class="fa-solid fa-pen-to-square"></i> Input Nilai (e-Rapor)</a>
+                    <a href="input-absensi.html" class="menu-item"><i class="fa-solid fa-calendar-check"></i> Absensi Siswa</a>
+                    <a href="#" class="menu-item"><i class="fa-solid fa-book-open"></i> Upload Materi</a>
+                `;
+            }
+            else if (user.role === 'siswa') {
+                menuHTML = `
+                    <p class="menu-label">MENU SISWA</p>
+                    <a href="#" class="menu-item active"><i class="fa-solid fa-house"></i> Dashboard Siswa</a>
+                    <a href="#" class="menu-item"><i class="fa-solid fa-star"></i> Lihat Nilai</a>
+                    <a href="#" class="menu-item"><i class="fa-solid fa-book"></i> Unduh Materi</a>
+                    <a href="e-rapor.html" class="menu-item"><i class="fa-solid fa-file-pdf"></i> Cetak e-Rapor</a>
+                `;
+            }
+            else if (user.role === 'ortu') {
+                menuHTML = `
+                    <p class="menu-label">PORTAL ORANG TUA</p>
+                    <a href="rekap-absensi.html" class="menu-item active"><i class="fa-solid fa-chart-line"></i> Pantau Kehadiran</a>
+                    <a href="e-rapor.html" class="menu-item"><i class="fa-solid fa-file-signature"></i> Unduh e-Rapor Anak</a>
+                    <a href="#" class="menu-item"><i class="fa-solid fa-comments"></i> Chat Wali Kelas</a>
+                `;
+            }
+
+            // Tambahkan tombol Logout di paling bawah untuk semua role
+            menuHTML += `
+                <div style="margin-top: 2rem; border-top: 1px solid #E2E8F0; padding-top: 1rem;">
+                    <a href="#" class="menu-item" style="color: #DC2626;" onclick="logout()">
+                        <i class="fa-solid fa-right-from-bracket"></i> Keluar Sistem
+                    </a>
+                </div>
+            `;
+
+            // Suntikkan HTML ke dalam sidebar
+            sidebarContainer.innerHTML = menuHTML;
+            
+            // Opsional: Sembunyikan chart analitik jika yang login bukan Admin (biar tampilan lebih rapi)
+            if(user.role !== 'admin') {
+                const chartContainer = document.querySelector('.chart-container');
+                if(chartContainer) chartContainer.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
+</html>

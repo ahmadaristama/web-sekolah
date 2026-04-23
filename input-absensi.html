@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Absensi | SDN 1 KONOHA</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .form-container { max-width: 900px; margin: 3rem auto; background: var(--white); padding: 2.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-md); }
+        .table-custom { width: 100%; border-collapse: collapse; margin-top: 1.5rem; }
+        .table-custom th, .table-custom td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        .table-custom th { background-color: var(--bg-light); color: var(--text-dark); font-weight: 600; }
+        
+        .radio-group { display: flex; gap: 15px; }
+        .radio-label { display: flex; align-items: center; gap: 5px; cursor: pointer; font-size: 0.9rem; font-weight: 500; }
+        input[type="radio"] { cursor: pointer; accent-color: var(--primary-blue); width: 16px; height: 16px; }
+
+        .text-hadir { color: #059669; }
+        .text-sakit { color: #D97706; }
+        .text-izin { color: #2563EB; }
+        .text-alpa { color: #DC2626; }
+
+        .alert-success { background-color: #D1FAE5; color: #065F46; padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1.5rem; display: none; align-items: center; gap: 10px; font-weight: 500; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand" style="cursor:pointer;" onclick="window.location.href='dashboard.html'">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>Kembali ke Dashboard</span>
+        </div>
+        <div class="nav-menu">
+            <span class="role-badge" style="background:#FEF3C7; color:#D97706; padding:0.4rem 1rem; border-radius:20px; font-weight:600;"><i class="fa-solid fa-chalkboard-user"></i> Akses Guru</span>
+        </div>
+    </nav>
+
+    <main class="form-container">
+        <div style="border-bottom: 2px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+            <h2 style="color: var(--primary-blue);"><i class="fa-solid fa-calendar-check"></i> Input Absensi Harian</h2>
+            <p style="color: var(--text-gray); margin-top: 5px;">Kelas: V (Lima) | Tanggal: <strong id="tanggal-hari-ini"></strong></p>
+        </div>
+
+        <div id="success-message" class="alert-success">
+            <i class="fa-solid fa-circle-check"></i> Data absensi kelas hari ini berhasil disimpan!
+        </div>
+
+        <form id="form-absensi" onsubmit="simpanAbsensi(event)">
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th width="5%">No</th>
+                        <th width="20%">NISN</th>
+                        <th width="35%">Nama Siswa</th>
+                        <th width="40%">Keterangan Kehadiran</th>
+                    </tr>
+                </thead>
+                <tbody id="daftar-siswa">
+                    <tr>
+                        <td>1</td>
+                        <td>0012345678</td>
+                        <td><strong>Uzumaki Boruto</strong></td>
+                        <td>
+                            <div class="radio-group">
+                                <label class="radio-label text-hadir"><input type="radio" name="abs_0012345678" value="Hadir" required checked> Hadir</label>
+                                <label class="radio-label text-sakit"><input type="radio" name="abs_0012345678" value="Sakit"> Sakit</label>
+                                <label class="radio-label text-izin"><input type="radio" name="abs_0012345678" value="Izin"> Izin</label>
+                                <label class="radio-label text-alpa"><input type="radio" name="abs_0012345678" value="Alpa"> Alpa</label>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>0012345679</td>
+                        <td><strong>Uchiha Sarada</strong></td>
+                        <td>
+                            <div class="radio-group">
+                                <label class="radio-label text-hadir"><input type="radio" name="abs_0012345679" value="Hadir" required checked> Hadir</label>
+                                <label class="radio-label text-sakit"><input type="radio" name="abs_0012345679" value="Sakit"> Sakit</label>
+                                <label class="radio-label text-izin"><input type="radio" name="abs_0012345679" value="Izin"> Izin</label>
+                                <label class="radio-label text-alpa"><input type="radio" name="abs_0012345679" value="Alpa"> Alpa</label>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>0012345680</td>
+                        <td><strong>Mitsuki</strong></td>
+                        <td>
+                            <div class="radio-group">
+                                <label class="radio-label text-hadir"><input type="radio" name="abs_0012345680" value="Hadir" required checked> Hadir</label>
+                                <label class="radio-label text-sakit"><input type="radio" name="abs_0012345680" value="Sakit"> Sakit</label>
+                                <label class="radio-label text-izin"><input type="radio" name="abs_0012345680" value="Izin"> Izin</label>
+                                <label class="radio-label text-alpa"><input type="radio" name="abs_0012345680" value="Alpa"> Alpa</label>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
+                <button type="submit" class="btn btn-primary btn-lg"><i class="fa-solid fa-cloud-arrow-up"></i> Simpan Data Absensi</button>
+            </div>
+        </form>
+    </main>
+
+    <script src="js/auth.js"></script>
+    <script>
+        // Set tanggal hari ini
+        const tglSekarang = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        document.getElementById('tanggal-hari-ini').innerText = tglSekarang;
+
+        // Proteksi Halaman Khusus Guru
+        const user = checkAuth();
+        if (user && user.role !== 'guru' && user.role !== 'admin') {
+            alert("Akses Ditolak! Hanya Wali Kelas yang dapat mengisi absensi.");
+            window.location.href = 'dashboard.html';
+        }
+
+        // Simpan Absensi
+        function simpanAbsensi(e) {
+            e.preventDefault();
+
+            // Kumpulkan data semua siswa dari form
+            const daftarSiswa = [
+                { nisn: '0012345678', nama: 'Uzumaki Boruto' },
+                { nisn: '0012345679', nama: 'Uchiha Sarada' },
+                { nisn: '0012345680', nama: 'Mitsuki' }
+            ];
+
+            const tanggalInput = new Date().toLocaleDateString('id-ID'); // Format DD/MM/YYYY
+            let dbAbsensi = JSON.parse(localStorage.getItem('db_absensi')) || [];
+
+            // Looping dan simpan status masing-masing siswa
+            daftarSiswa.forEach(siswa => {
+                const status = document.querySelector(`input[name="abs_${siswa.nisn}"]:checked`).value;
+                
+                dbAbsensi.push({
+                    tanggal: tanggalInput,
+                    guru: user.name,
+                    nisn: siswa.nisn,
+                    nama: siswa.nama,
+                    status: status
+                });
+            });
+
+            localStorage.setItem('db_absensi', JSON.stringify(dbAbsensi));
+
+            // Tampilkan notifikasi sukses
+            document.getElementById('success-message').style.display = 'flex';
+            setTimeout(() => { document.getElementById('success-message').style.display = 'none'; }, 3000);
+        }
+    </script>
+</body>
+</html>

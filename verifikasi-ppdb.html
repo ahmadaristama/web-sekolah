@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verifikasi PPDB | Admin SDN 1 KONOHA</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .admin-container { max-width: 1000px; margin: 3rem auto; background: var(--white); padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-md); }
+        .table-custom { width: 100%; border-collapse: collapse; margin-top: 1.5rem; }
+        .table-custom th, .table-custom td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        .table-custom th { background-color: var(--bg-light); color: var(--text-dark); font-weight: 600; }
+        
+        .badge { padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+        .badge-warning { background: #FEF3C7; color: #D97706; }
+        .badge-success { background: #D1FAE5; color: #059669; }
+        .badge-danger { background: #FEE2E2; color: #DC2626; }
+        
+        .action-btn { padding: 6px 12px; border: none; border-radius: 5px; cursor: pointer; color: white; font-weight: 500; font-size: 0.85rem;}
+        .btn-terima { background: var(--soft-green); }
+        .btn-tolak { background: #DC2626; margin-left: 5px;}
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand" style="cursor:pointer;" onclick="window.location.href='dashboard.html'">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>Kembali ke Dashboard Admin</span>
+        </div>
+    </nav>
+
+    <main class="admin-container">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border-color); padding-bottom: 1rem;">
+            <h2>Data Pendaftar PPDB Online</h2>
+            <button class="btn btn-outline"><i class="fa-solid fa-download"></i> Export Data</button>
+        </div>
+
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>No. Registrasi</th>
+                    <th>Nama Calon Siswa</th>
+                    <th>Asal Sekolah</th>
+                    <th>Tgl Daftar</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="tabel-ppdb-body">
+                </tbody>
+        </table>
+    </main>
+
+    <script src="js/auth.js"></script>
+    <script>
+        // Proteksi: Hanya Admin yang boleh masuk
+        const user = checkAuth();
+        if (user && user.role !== 'admin') {
+            alert("Akses Ditolak! Khusus Administrator.");
+            window.location.href = 'dashboard.html';
+        }
+
+        // Fungsi memuat data tabel
+        function loadTabelPPDB() {
+            const dbPPDB = JSON.parse(localStorage.getItem('db_ppdb')) || [];
+            const tbody = document.getElementById('tabel-ppdb-body');
+            
+            if (dbPPDB.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 2rem; color:gray;">Belum ada data pendaftar masuk.</td></tr>';
+                return;
+            }
+
+            let html = '';
+            dbPPDB.reverse().forEach((pendaftar, index) => {
+                // Tentukan warna badge status
+                let badgeClass = 'badge-warning';
+                if(pendaftar.status === 'Diterima') badgeClass = 'badge-success';
+                if(pendaftar.status === 'Ditolak') badgeClass = 'badge-danger';
+
+                // Tombol aksi hanya muncul jika status masih menunggu
+                let aksiHtml = '';
+                if(pendaftar.status === 'Menunggu Verifikasi') {
+                    aksiHtml = `
+                        <button class="action-btn btn-terima" onclick="updateStatus('${pendaftar.no_registrasi}', 'Diterima')"><i class="fa-solid fa-check"></i> Terima</button>
+                        <button class="action-btn btn-tolak" onclick="updateStatus('${pendaftar.no_registrasi}', 'Ditolak')"><i class="fa-solid fa-xmark"></i> Tolak</button>
+                    `;
+                } else {
+                    aksiHtml = `<span style="color:var(--text-gray); font-size:0.85rem;"><i class="fa-solid fa-lock"></i> Terkunci</span>`;
+                }
+
+                html += `
+                    <tr>
+                        <td><strong>${pendaftar.no_registrasi}</strong></td>
+                        <td>${pendaftar.nama} <br><small style="color:gray;">NIK: ${pendaftar.nik}</small></td>
+                        <td>${pendaftar.asal_sekolah}</td>
+                        <td>${pendaftar.tanggal_daftar}</td>
+                        <td><span class="badge ${badgeClass}">${pendaftar.status}</span></td>
+                        <td>${aksiHtml}</td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        // Fungsi mengubah status pendaftar
+        function updateStatus(noReg, statusBaru) {
+            if(confirm(`Apakah Anda yakin ingin mengubah status ${noReg} menjadi ${statusBaru}?`)) {
+                let dbPPDB = JSON.parse(localStorage.getItem('db_ppdb')) || [];
+                
+                // Cari pendaftar dan ubah statusnya
+                let pendaftarIndex = dbPPDB.findIndex(p => p.no_registrasi === noReg);
+                if(pendaftarIndex !== -1) {
+                    dbPPDB[pendaftarIndex].status = statusBaru;
+                    localStorage.setItem('db_ppdb', JSON.stringify(dbPPDB));
+                    loadTabelPPDB(); // Muat ulang tabel
+                }
+            }
+        }
+
+        // Jalankan saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', loadTabelPPDB);
+    </script>
+</body>
+</html>
